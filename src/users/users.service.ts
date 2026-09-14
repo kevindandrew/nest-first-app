@@ -1,60 +1,69 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto.js';
 import { UpdateUserDto } from './dto/update-user.dto.js';
-
+import { PrismaService } from '../prisma/prisma.service.js';
+import { Prisma } from '../generated/prisma/client.js';
 @Injectable()
 export class UsersService {
-  private users = [
-    {
-      id: 1,
-      name: 'Kevin Rodriguez',
-      email: 'kevinfunval@gmail.com',
-      password: '123456789',
-    },
-    {
-      id: 2,
-      name: 'Jeremy Vargas',
-      email: 'jeremyfunval@gmail.com',
-      password: '987654321',
-    },
-    {
-      id: 3,
-      name: 'Jose Pelico',
-      email: 'josefunval@gmail.com',
-      password: '33jaja223322',
-    },
-  ];
-  create(createUserDto: CreateUserDto) {
-    const newUser = {
-      id: this.users.length + 1,
-      ...createUserDto,
-    };
-    this.users.push(newUser);
-    return newUser;
-  }
-
-  findAll() {
-    return this.users;
-  }
-
-  findOne(id: number) {
-    const user = this.users.find((u) => u.id === id);
-    if (!user) {
-      throw new NotFoundException(`Usuario con id ${id} NO ENCONTRADO`);
+  constructor(private readonly prisma: PrismaService) {}
+  async create(createUserDto: CreateUserDto) {
+    try {
+      return await this.prisma.user.create({
+        data: createUserDto,
+      });
+    } catch (error) {
+      return error;
     }
-    return user;
   }
 
-  /* update(id: number, updateUserDto: UpdateUserDto) {
-    return `This action updates a #${id} user`;
-  } */
-
-  remove(id: number) {
-    const user = this.users.filter((u) => u.id === id);
-    if (!user) {
-      throw new NotFoundException(`Usuario con id ${id} NO ENCONTRADO`);
+  async findAll() {
+    try {
+      return this.prisma.user.findMany({
+        orderBy: { id: 'asc' },
+      });
+    } catch (error) {
+      return error;
     }
-    this.users = this.users.filter((u) => u.id !== id);
-    return 'Usuario Eliminado exitosamente ';
+  }
+
+  async findOne(id: number) {
+    try {
+      const user = await this.prisma.user.findUnique({
+        where: { id },
+      });
+      if (!user) {
+        throw new NotFoundException(`usuario de ID: ${id} no encontrado`);
+      }
+      return user;
+    } catch (error) {
+      return error;
+    }
+  }
+
+  async update(id: number, updateUserDto: UpdateUserDto) {
+    try {
+      return await this.prisma.user.update({
+        where: { id },
+        data: updateUserDto,
+      });
+    } catch (error) {
+      return error;
+    }
+  }
+
+  async remove(id: number) {
+    try {
+      const user = await this.prisma.user.findUnique({
+        where: { id },
+      });
+      if (!user) {
+        throw new NotFoundException(`usuario de ID: ${id} no encontrado`);
+      }
+      return await this.prisma.user.delete({
+        where: { id },
+      });
+    } catch (error) {
+      return error;
+    }
   }
 }
