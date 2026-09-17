@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto.js';
 import { UpdateUserDto } from './dto/update-user.dto.js';
 import { PrismaService } from '../prisma/prisma.service.js';
@@ -7,63 +11,43 @@ import { Prisma } from '../generated/prisma/client.js';
 export class UsersService {
   constructor(private readonly prisma: PrismaService) {}
   async create(createUserDto: CreateUserDto) {
-    try {
-      return await this.prisma.user.create({
-        data: createUserDto,
-      });
-    } catch (error) {
-      return error;
-    }
+    return await this.prisma.user.create({
+      data: createUserDto,
+    });
   }
 
   async findAll() {
-    try {
-      return this.prisma.user.findMany({
-        orderBy: { id: 'asc' },
-      });
-    } catch (error) {
-      return error;
-    }
+    return this.prisma.user.findMany({
+      orderBy: { id: 'asc' },
+    });
   }
 
   async findOne(id: number) {
-    try {
-      const user = await this.prisma.user.findUnique({
-        where: { id },
-      });
-      if (!user) {
-        throw new NotFoundException(`usuario de ID: ${id} no encontrado`);
-      }
-      return user;
-    } catch (error) {
-      return error;
+    const user = await this.prisma.user.findUnique({
+      where: { id },
+    });
+    if (!user) {
+      throw new NotFoundException(`usuario de ID: ${id} no encontrado`);
     }
+    return user;
   }
 
   async update(id: number, updateUserDto: UpdateUserDto) {
-    try {
-      return await this.prisma.user.update({
-        where: { id },
-        data: updateUserDto,
-      });
-    } catch (error) {
-      return error;
-    }
+    return await this.prisma.user.update({
+      where: { id },
+      data: updateUserDto,
+    });
   }
 
   async remove(id: number) {
-    try {
-      const user = await this.prisma.user.findUnique({
-        where: { id },
-      });
-      if (!user) {
-        throw new NotFoundException(`usuario de ID: ${id} no encontrado`);
-      }
-      return await this.prisma.user.delete({
-        where: { id },
-      });
-    } catch (error) {
-      return error;
+    const user = await this.prisma.user.findUnique({
+      where: { id },
+    });
+    if (!user) {
+      throw new NotFoundException(`usuario de ID: ${id} no encontrado`);
     }
+    return await this.prisma.user.delete({
+      where: { id },
+    });
   }
 }
