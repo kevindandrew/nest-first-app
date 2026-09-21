@@ -1,5 +1,7 @@
 import {
   ConflictException,
+  forwardRef,
+  Inject,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -7,8 +9,10 @@ import { CreateUserDto } from './dto/create-user.dto.js';
 import { UpdateUserDto } from './dto/update-user.dto.js';
 import { PrismaService } from '../prisma/prisma.service.js';
 import { Prisma } from '../generated/prisma/client.js';
+
 import * as bcrypt from 'bcryptjs';
 import { Role } from '../generated/prisma/client.js';
+import { AuthService } from '../auth/auth.service.js';
 @Injectable()
 export class UsersService {
   constructor(private readonly prisma: PrismaService) {}
